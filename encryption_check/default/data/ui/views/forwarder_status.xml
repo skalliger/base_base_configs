@@ -1,0 +1,78 @@
+<form theme="dark">
+  <label>Forwarder Status</label>
+  <fieldset submitButton="false">
+    <input type="time" token="tp1" searchWhenChanged="true">
+      <label>Time Range:</label>
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="tok_host">
+      <label>Hostname:</label>
+      <default>*</default>
+      <prefix>hostname="</prefix>
+      <suffix>"</suffix>
+      <initialValue>*</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Encryption Status distribution</title>
+      <chart>
+        <search>
+          <query>index=_internal source=*metrics.log* group=tcpin_connections $tok_host$
+| fields hostname version sourceIp destPort ssl 
+| dedup hostname 
+| stats count by ssl
+| rename ssl AS "Encryption enabled"</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Forwarders</title>
+      <table>
+        <search>
+          <query>index=_internal source=*metrics.log* group=tcpin_connections $tok_host$
+| fields hostname, version, sourceIp, destPort, ssl
+| dedup hostname 
+| table hostname version sourceIp destPort ssl
+| rename hostname AS "Host", version AS "Splunk Version", sourceIp AS "Source IP address", destPort AS "Receiving Port", ssl AS "Encryption enabled"</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="count">25</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="Encryption enabled">
+          <colorPalette type="map">{"true":#53A051,"false":#DC4E41}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Possible Configuration errors</title>
+      <event>
+        <search>
+          <query>index=_internal sourcetype=splunkd component=TCPOutputProc log_level=ERROR "SSL" $tok_host$
+| fields _time, host, component, event_message
+| dedup host, event_message
+| transaction host
+| table _time, host, component, event_message
+| rename event_message AS "Message"</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="list.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </event>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,38 @@
+[app/ui]
+version = 8.0.1
+modtime = 1594024735.976878000
+
+[app/launcher]
+version = 8.0.1
+modtime = 1594024735.979462000
+
+[]
+access = read : [ admin, r-encryption_check ], write : [ r-encryption_check ]
+export = none
+version = 8.0.1
+modtime = 1594037056.594838000
+
+[views/forwarder_status]
+owner = admin
+version = 8.0.1
+modtime = 1594042120.004779000
+
+[views/webserver_details]
+owner = admin
+version = 8.0.1
+modtime = 1594042244.751539000
+
+[views/indexer_status]
+owner = admin
+version = 8.0.1
+modtime = 1594041584.621104000
+
+[authorize/role_r-encryption_check]
+version = 8.0.1
+modtime = 1594036983.783421000
+
+[views/encryption_overview]
+owner = admin
+version = 8.0.1
+modtime = 1594041676.010592000
+

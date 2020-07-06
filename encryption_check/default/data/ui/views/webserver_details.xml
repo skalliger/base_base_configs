@@ -1,0 +1,30 @@
+<dashboard theme="dark">
+  <label>Webserver Details</label>
+  <description>This dashboard only works on the local instance where this XML is put. To check other instances, put the dashboard onto them. If there is no table displayed, you probably don't have HTTPS enabled.</description>
+  <row>
+    <panel>
+      <title>Encryption Details</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/configs/conf-web/settings
+| table splunk_server, acceptFrom, allowSslCompression, allowSslRenegotiation, appServerPorts, cipherSuite, disabled, ecdhCurves, enableSplunkWebSSL, enable_insecure_login, httpport, keepAliveIdleTimeout, listenOnIPv6, mgmtHostPort, privKeyPath, serverCert, sslVersions, startwebserver
+| dedup splunk_server, acceptFrom, allowSslCompression, allowSslRenegotiation, appServerPorts, cipherSuite, disabled, ecdhCurves, enableSplunkWebSSL, enable_insecure_login, httpport, keepAliveIdleTimeout, listenOnIPv6, mgmtHostPort, privKeyPath, serverCert, sslVersions, startwebserver
+| where disabled=0 AND enableSplunkWebSSL=1 AND startwebserver=1
+| rename appServerPorts AS "KV Store Port", splunk_server AS "Instance"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="allowSslRenegotiation">
+          <colorPalette type="map">{"0":#DC4E41,"1":#53A051}</colorPalette>
+        </format>
+        <format type="color" field="enable_insecure_login">
+          <colorPalette type="map">{"0":#53A051,"1":#DC4E41}</colorPalette>
+        </format>
+        <format type="color" field="sslVersions">
+          <colorPalette type="map">{"sslv2":#DC4E41,"sslv3":#DC4E41}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

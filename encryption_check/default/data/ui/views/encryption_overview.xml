@@ -1,0 +1,107 @@
+<form theme="dark">
+  <label>Encryption Overview</label>
+  <fieldset submitButton="false">
+    <input type="time" token="tp1" searchWhenChanged="true">
+      <label>Time Range</label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Number of Forwarders sending encrypted Traffic</title>
+      <single>
+        <search>
+          <query>index=_internal source=*metrics.log* group=tcpin_connections
+| fields hostname ssl 
+| dedup hostname 
+| where ssl LIKE "true"
+| stats count</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xdc4e41","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Numer of Forwarders sending unencrypted Traffic</title>
+      <single>
+        <search>
+          <query>index=_internal source=*metrics.log* group=tcpin_connections
+| fields hostname ssl 
+| dedup hostname 
+| where ssl LIKE "false"
+| stats count</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Number of Indexers</title>
+      <single>
+        <search>
+          <query>index=_internal component="Metrics" instance_roles=*
+| fields - _raw
+| dedup server_name
+| regex instance_roles="(indexer)"
+| stats count</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Number of Indexers with splunktcp-ssl enabled</title>
+      <single>
+        <search>
+          <query>| rest /services/configs/conf-inputs splunk_server=*
+| search title="splunktcp-ssl*" eai:acl.app!=system disabled=0
+| stats count</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xdc4e41","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">0</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Webserver Activity detected</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd_ui_access referer=*
+| rex field=referer "(?P&lt;accessType&gt;[^\:]+)"
+| where accessType IN ("http", "https")
+| dedup host, accessType
+| table host, accessType
+| rename host AS "Splunk Server", accessType AS "Access Type"</query>
+          <earliest>$tp1.earliest$</earliest>
+          <latest>$tp1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Access Type">
+          <colorPalette type="map">{"https":#53A051,"http":#DC4E41}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

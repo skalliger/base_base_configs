@@ -1,0 +1,10 @@
+<nav search_view="search">
+	<view name="encryption_overview" default="true" />
+	<view name="forwarder_status" />
+	<view name="indexer_status" />
+	<view name="webserver_details" />
+	<collection label="Select">
+		<view name="search" />
+		<view name="dashboards" />
+	</collection>
+</nav>
