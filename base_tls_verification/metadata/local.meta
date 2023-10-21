@@ -1,0 +1,8 @@
+[]
+access = read : [ * ], write : [ admin ]
+export = system
+
+[indexes/mercury]
+owner = dhoffman
+version = 9.1.1
+modtime = 1697670006.158117000
